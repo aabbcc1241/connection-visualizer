@@ -1,6 +1,6 @@
 <ion-view view-title="Connections">
   <ion-content>
-    <ion-list>
+    <ion-list ng-init="init()">
       <ion-item ng-repeat="connection in connections" href="#/app/connections/{{connection.id}}">
         {{connection.title}}
       </ion-item>
