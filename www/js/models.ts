@@ -1,67 +1,111 @@
 module connection_visualizer {
-  export class Node {
-    id:number;
-    name:number;
-    peer_list:Node[];
+  export module NodeManager {
+    var ids:number[];
+    var names:string[];
+    var forwardConnections:Array<number[]>;
+    var lastId = null;
 
-    constructor(id:number, name:string, peer_list:Node[] = []) {
-      this.id = id;
-      this.name = id;
-      this.peer_list = peer_list;
-    }
-
-    public isPeer(node:Node):boolean {
-      return this.peer_list.indexOf(node) != -1;
+    export function numberOfNodes() {
+      return ids.length;
     }
 
     /**
-     * @param node Node : new peer to add
-     * @return boolean : true if the new node is added successfully
-     *                   false if the new node is already peer
+     * @return id of new Node
      * */
-    public addPeer(node:Node):boolean {
-      if (this.isPeer(node))
-        return false;
-      this.peer_list.push(node);
-      return true;
+    export function createNode(name:string, newForwardConnections:number[] = []):number {
+      lastId++;
+      ids.push(lastId);
+      names[lastId] = name;
+      forwardConnections[lastId] = newForwardConnections;
+      return lastId;
     }
 
-    /**
-     * @param node Node : the node to be removed
-     * @return boolean : true if removed successfully
-     *                   false if the node is not peer previously
-     * */
-    public removePeer(node:Node):boolean {
-      var index = this.peer_list.indexOf(node);
-      if (index == -1)
-        return false;
-      this.peer_list.slice(index, 1);
-      return true;
+    function save() {
+      utils.localSave('ids', ids);
+      utils.localSave('names', names);
+      utils.localSave('forwardConnections', forwardConnections);
     }
 
-    public toString():string {
-      return JSON.stringify(this);
+    function load() {
+      ids = utils.localLoad('ids', []);
+      names = utils.localLoad('names', []);
+      forwardConnections = utils.localLoad('forwardConnections', []);
+      if (ids.length == 0)
+        lastId = -1;
+      else
+        lastId = Math.max(...ids);
     }
-  }
 
-  /**
-   * @param rawString string : the serialized string of the node object
-   * @return Node : the Node object
-   *         false : if failed to parse the object
-   * */
-  export function parseNode(rawString:string):Node|boolean {
-    var object = JSON.parse(rawString);
-    if (!utils.defined_structure(object, ['id', 'name', 'peer_list']))
-      return false;
-    return new Node(object.id, object.name, object.peer_list);
-  }
+    export function checkLoad() {
+      if (lastId === null)
+        load();
+    }
 
-  export class Connection {
-    constructor(public active:Node, public passive:Node) {
+    export function forEach(consumer) {
+      var nextIndex = 0;
+      ids.forEach(function (id) {
+        consumer({
+          id: function () {
+            return id;
+          },
+          name: function () {
+            return names[id];
+          },
+          forwardConnection: function () {
+            return forwardConnections[id];
+          }
+        });
+      });
+    }
+
+    export function map(producer) {
+      var list = [];
+      forEach(function (node) {
+        list.push(producer(node));
+      });
+      return list;
+    }
+
+    export function toArray() {
+      var list = [];
+      forEach(function (node) {
+        list.push(node);
+      });
+      return list;
+    }
+
+    export function toSimpleArray() {
+      return map(function (node) {
+        return {id: node.node(), name: node.name()}
+      })
     }
   }
 }
+
 module utils {
+  export function checkLocalStorageSupport() {
+    if (typeof (Storage) == "undefined") {
+      //var message = "Local Storage is not Supported";
+      var message = "Error, your browser does not support web storage!";
+      alert(message);
+      throw new Error(message);
+    }
+  }
+
+  export function localSave(key:string, value:any) {
+    checkLocalStorageSupport();
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  export function localLoad(key:string, defaultValue:any) {
+    checkLocalStorageSupport();
+    var value = localStorage.getItem(key);
+    if (value === null)
+      return defaultValue;
+    else
+      return value;
+  }
+
   export function defined_structure(obj, attrs:any[]):boolean {
     return attrs.every(attr=>obj[attr] != undefined);
   }

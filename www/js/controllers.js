@@ -41,24 +41,16 @@ angular.module('starter.controllers', [])
     };
   })
 
-  .controller('ConnectionsCtrl', function ($scope) {
-    $scope.init = function () {
-      $scope.connections = localStorage['connections'];
-      if ($scope.connections == null)
-      /* set default data */
-        $scope.connections = [
-          {title: 'Reggae', id: 1},
-          {title: 'Chill', id: 2},
-          {title: 'Dubstep', id: 3},
-          {title: 'Indie', id: 4},
-          {title: 'Rap', id: 5},
-          {title: 'Cowbell', id: 6}
-        ];
-    };
-    $scope.save = function () {
-      localStorage['connections'] = $scope.connections;
+  .controller('NodesCtrl', function ($scope) {
+    $scope.loadNodes = function () {
+      connection_visualizer.NodeManager.checkLoad();
+      if (connection_visualizer.NodeManager.numberOfNodes() == 0) {
+        connection_visualizer.NodeManager.createNode("Beeno");
+        connection_visualizer.NodeManager.createNode("Katie");
+      }
+      $scope.nodes = connection_visualizer.NodeManager.toArray();
     };
   })
 
-  .controller('ConnectionCtrl', function ($scope, $stateParams) {
+  .controller('NodeCtrl', function ($scope, $stateParams) {
   });

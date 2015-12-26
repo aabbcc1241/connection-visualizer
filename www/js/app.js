@@ -49,25 +49,25 @@ angular.module('starter', ['ionic', 'starter.controllers'])
         }
       }
     })
-    .state('app.connections', {
-      url: '/connections',
+    .state('app.nodes', {
+      url: '/nodes',
       views: {
         'menuContent': {
-          templateUrl: 'templates/connections.html',
-          controller: 'ConnectionsCtrl'
+          templateUrl: 'templates/nodes.html',
+          controller: 'NodesCtrl'
         }
       }
     })
 
   .state('app.single', {
-    url: '/connections/:connectionId',
+    url: '/nodes/:nodeId',
     views: {
       'menuContent': {
-        templateUrl: 'templates/connection.html',
-        controller: 'ConnectionCtrl'
+        templateUrl: 'templates/node.html',
+        controller: 'NodeCtrl'
       }
     }
   });
   // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/app/connections');
+  $urlRouterProvider.otherwise('/app/nodes');
 });

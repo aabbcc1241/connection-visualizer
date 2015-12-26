@@ -1,0 +1,9 @@
+<ion-view view-title="Nodes" cache-view="false">
+  <ion-content>
+    <ion-list ng-init="loadNodes()">
+      <ion-item ng-repeat="node in nodes" href="#/app/nodes/{{node.id()}}">
+        {{node.name()}}
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>
