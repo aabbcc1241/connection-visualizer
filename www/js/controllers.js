@@ -39,9 +39,14 @@ angular.module('starter.controllers', [])
         $scope.closeLogin();
       }, 1000);
     };
+
   })
 
   .controller('NodesCtrl', function ($scope) {
+    $scope.toggleShowDelete=function(){
+      $scope.shouldShowDelete=!$scope.shouldShowDelete;
+      $scope.shouldShowReorder=false;
+    };
     $scope.loadNodes = function () {
       connection_visualizer.NodeManager.checkLoad();
       if (connection_visualizer.NodeManager.numberOfNodes() == 0) {
@@ -49,6 +54,13 @@ angular.module('starter.controllers', [])
         connection_visualizer.NodeManager.createNode("Katie");
       }
       $scope.nodes = connection_visualizer.NodeManager.toArray();
+    };
+    $scope.deleteNode = function (node) {
+      $scope.nodes.splice($scope.nodes.indexOf(node), 1);
+    };
+    $scope.reorderNode = function (node, $fromIndex, $toIndex) {
+      $scope.nodes.splice($fromIndex, 1);
+      $scope.nodes.splice($toIndex, 0, node);
     };
   })
 

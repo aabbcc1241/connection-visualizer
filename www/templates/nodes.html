@@ -1,8 +1,32 @@
 <ion-view view-title="Nodes" cache-view="false">
-  <ion-content>
-    <ion-list ng-init="loadNodes()">
+  <ion-content ng-controller="NodesCtrl">
+    <!--<ion-header-bar class="bar-subheader bar-positive">-->
+      <!--<div class="buttons item-button-left">-->
+        <!--<button class="button button-icon icon ion-ios-minus-outline" ng-click="toggleShowDelete()"></button>-->
+      <!--</div>-->
+      <!--<div class="buttons title">-->
+        <!--<button class="button title">Create</button>-->
+      <!--</div>-->
+      <!--<div class="buttons item-button-right">-->
+        <!--<button class="button" style="top: 0">Reorder</button>-->
+      <!--</div>-->
+    <!--</ion-header-bar>-->
+    <div class="row buttons">
+      <div class="col">
+        <button class="button button-icon icon ion-minus-circled" ng-click="toggleShowDelete()"></button>
+      </div>
+      <div class="col col-center row-center text-center">
+          <button class="button button-stable ion-android-create"></button>
+      </div>
+      <div class="col">
+      <ion-toggle ng-model="shouldShowReorder">Reorder</ion-toggle>
+      </div>
+    </div>
+    <ion-list show-delete="shouldShowDelete" show-reorder="shouldShowReorder" ng-init="loadNodes()">
       <ion-item ng-repeat="node in nodes" href="#/app/nodes/{{node.id()}}">
+        <ion-delete-button class="ion-minus-circled" on-hold="deleteNode(node)"></ion-delete-button>
         {{node.name()}}
+        <ion-reorder-button class="ion-navicon" on-reorder="reorderNode(node,$fromIndex,$toIndex)"></ion-reorder-button>
       </ion-item>
     </ion-list>
   </ion-content>
