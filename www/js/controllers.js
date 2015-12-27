@@ -42,10 +42,29 @@ angular.module('starter.controllers', [])
 
   })
 
-  .controller('NodesCtrl', function ($scope) {
-    $scope.toggleShowDelete=function(){
-      $scope.shouldShowDelete=!$scope.shouldShowDelete;
-      $scope.shouldShowReorder=false;
+  .controller('NodesCtrl', function ($scope, $http) {
+    $scope.init = function () {
+      $scope.shouldShowReorder = true;
+      $scope.shouldShowDelete = true;
+    };
+    $scope.toggleShowDelete = function () {
+      $scope.shouldShowDelete = !$scope.shouldShowDelete;
+      //$scope.shouldShowReorder = false;
+    };
+    $scope.clearFilter = function () {
+      $scope.filterText = "";
+      $scope.updateFilter();
+    };
+    $scope.updateFilter = function () {
+      var target = $scope.filterText.toLowerCase();
+      var filter = function (node) {
+        return node.name().toLowerCase().indexOf(target) != -1;
+      };
+      //will not cause update
+      //$scope.loadNodes(filter);
+
+    };
+    $scope.createNewNode = function () {
     };
     $scope.loadNodes = function () {
       connection_visualizer.NodeManager.checkLoad();
@@ -62,6 +81,7 @@ angular.module('starter.controllers', [])
       $scope.nodes.splice($fromIndex, 1);
       $scope.nodes.splice($toIndex, 0, node);
     };
+    $scope.init();
   })
 
   .controller('NodeCtrl', function ($scope, $stateParams) {
