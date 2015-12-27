@@ -60,19 +60,20 @@ angular.module('starter.controllers', [])
       var filter = function (node) {
         return node.name().toLowerCase().indexOf(target) != -1;
       };
-      //will not cause update
-      //$scope.loadNodes(filter);
-
+      $scope.loadNodes(filter);
     };
     $scope.createNewNode = function () {
     };
-    $scope.loadNodes = function () {
+    $scope.loadNodes = function (filter) {
       connection_visualizer.NodeManager.checkLoad();
       if (connection_visualizer.NodeManager.numberOfNodes() == 0) {
         connection_visualizer.NodeManager.createNode("Beeno");
         connection_visualizer.NodeManager.createNode("Katie");
       }
-      $scope.nodes = connection_visualizer.NodeManager.toArray();
+      var nodes = connection_visualizer.NodeManager.toArray();
+      if(filter!=null)
+      nodes=nodes.filter(filter);
+      $scope.nodes = nodes;
     };
     $scope.deleteNode = function (node) {
       $scope.nodes.splice($scope.nodes.indexOf(node), 1);

@@ -1,4 +1,4 @@
-<ion-view view-title="Nodes" cache-view="false">
+<ion-view view-title="Nodes" cache-view="false" ng-controller="NodesCtrl">
   <ion-header-bar class="bar-positive bar-subheader">
     <label class="input-label">
       <input class="search" ng-model="filterText" ng-change="updateFilter()">
@@ -11,7 +11,7 @@
       <button class="button" ng-click="createNewNode()">New Node</button>
     </div>
   </ion-header-bar>
-  <ion-content ng-controller="NodesCtrl">
+  <ion-content>
     <ion-list show-delete="shouldShowDelete" show-reorder="shouldShowReorder" ng-init="loadNodes()">
       <ion-item ng-repeat="node in nodes" href="#/app/nodes/{{node.id()}}">
         <ion-delete-button class="ion-minus-circled" on-hold="deleteNode(node)"></ion-delete-button>
