@@ -42,8 +42,9 @@ angular.module('starter.controllers', [])
 
   })
 
-  .controller('NodesCtrl', function ($scope, $http) {
+  .controller('NodesCtrl', function ($scope, $ionicPopup) {
     $scope.init = function () {
+      $scope.data = {};
       $scope.shouldShowReorder = true;
       $scope.shouldShowDelete = true;
     };
@@ -63,6 +64,34 @@ angular.module('starter.controllers', [])
       $scope.loadNodes(filter);
     };
     $scope.createNewNode = function () {
+      $scope.data.newName = "";
+      var popup = $ionicPopup.show({
+        template: '<input type="text" ng-model="data.newName" placeholder="name">',
+        title: 'Enter new Node name',
+        subTitle: '(Display name)',
+        scope: $scope,
+        buttons: [
+          {text: 'Cancel'},
+          {
+            text: '<b>Save</b>',
+            type: 'button-positive',
+            onTap: function (event) {
+              $scope.data.newName = utils.trimString($scope.data.newName);
+              if ($scope.data.newName == "")
+                event.preventDefault();
+              else
+                return $scope.data.newName
+            }
+          }
+        ]
+      });
+      popup.then(function (newName) {
+        newName = utils.trimString(newName);
+        if (newName == "")
+          return;
+        var id = connection_visualizer.NodeManager.createNode(newName);
+        $scope.data.nodes.push(connection_visualizer.NodeManager.getNodeById(id));
+      });
     };
     $scope.loadNodes = function (filter) {
       connection_visualizer.NodeManager.checkLoad();
@@ -71,16 +100,16 @@ angular.module('starter.controllers', [])
         connection_visualizer.NodeManager.createNode("Katie");
       }
       var nodes = connection_visualizer.NodeManager.toArray();
-      if(filter!=null)
-      nodes=nodes.filter(filter);
-      $scope.nodes = nodes;
+      if (filter != null)
+        nodes = nodes.filter(filter);
+      $scope.data.nodes = nodes;
     };
     $scope.deleteNode = function (node) {
-      $scope.nodes.splice($scope.nodes.indexOf(node), 1);
+      $scope.data.nodes.splice($scope.data.nodes.indexOf(node), 1);
     };
     $scope.reorderNode = function (node, $fromIndex, $toIndex) {
-      $scope.nodes.splice($fromIndex, 1);
-      $scope.nodes.splice($toIndex, 0, node);
+      $scope.data.nodes.splice($fromIndex, 1);
+      $scope.data.nodes.splice($toIndex, 0, node);
     };
     $scope.init();
   })

@@ -20,6 +20,20 @@ module connection_visualizer {
       return lastId;
     }
 
+    export function getNodeById(id:number) {
+      return {
+        id: function () {
+          return id;
+        },
+        name: function () {
+          return names[id];
+        },
+        forwardConnection: function () {
+          return forwardConnections[id];
+        }
+      };
+    }
+
     function save() {
       utils.localSave('ids', ids);
       utils.localSave('names', names);
@@ -108,5 +122,12 @@ module utils {
 
   export function defined_structure(obj, attrs:any[]):boolean {
     return attrs.every(attr=>obj[attr] != undefined);
+  }
+
+  export function trimString(input:string):string {
+    if (input == null)
+      return "";
+    else
+      return input.trim();
   }
 }

@@ -13,7 +13,7 @@
   </ion-header-bar>
   <ion-content>
     <ion-list show-delete="shouldShowDelete" show-reorder="shouldShowReorder" ng-init="loadNodes()">
-      <ion-item ng-repeat="node in nodes" href="#/app/nodes/{{node.id()}}">
+      <ion-item ng-repeat="node in data.nodes" href="#/app/nodes/{{node.id()}}">
         <ion-delete-button class="ion-minus-circled" on-hold="deleteNode(node)"></ion-delete-button>
         {{node.name()}}
         <ion-reorder-button class="ion-navicon" on-reorder="reorderNode(node,$fromIndex,$toIndex)"></ion-reorder-button>
