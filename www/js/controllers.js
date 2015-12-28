@@ -45,8 +45,9 @@ angular.module('starter.controllers', [])
   .controller('NodesCtrl', function ($scope, $ionicPopup) {
     $scope.init = function () {
       $scope.data = {};
-      $scope.shouldShowReorder = true;
-      $scope.shouldShowDelete = true;
+      $scope.toggleMode();
+      //$scope.shouldShowReorder = true;
+      //$scope.shouldShowDelete = true;
     };
     $scope.toggleShowDelete = function () {
       $scope.shouldShowDelete = !$scope.shouldShowDelete;
@@ -57,11 +58,25 @@ angular.module('starter.controllers', [])
       $scope.updateFilter();
     };
     $scope.updateFilter = function () {
-      var target = $scope.filterText.toLowerCase();
+      var target = utils.trimString($scope.filterText.toLowerCase());
       var filter = function (node) {
         return node.name().toLowerCase().indexOf(target) != -1;
       };
       $scope.loadNodes(filter);
+    };
+    $scope.saveNodes = function () {
+      connection_visualizer.NodeManager.save();
+      var popup = $ionicPopup.alert({title: 'Saving Finished'});
+      popup.then($scope.toggleMode);
+    };
+    $scope.discardChange = function () {
+      $scope.updateFilter();
+      $scope.toggleMode();
+    };
+    $scope.toggleMode = function () {
+      $scope.isEditing = !$scope.isEditing;
+      $scope.shouldShowDelete = $scope.isEditing;
+      $scope.shouldShowReorder = $scope.isEditing;
     };
     $scope.createNewNode = function () {
       $scope.data.newName = "";
@@ -90,7 +105,8 @@ angular.module('starter.controllers', [])
         if (newName == "")
           return;
         var id = connection_visualizer.NodeManager.createNode(newName);
-        $scope.data.nodes.push(connection_visualizer.NodeManager.getNodeById(id));
+        if (newName.toLowerCase().indexOf(utils.trimString($scope.filterText).toLowerCase()) != -1)
+          $scope.data.nodes.push(connection_visualizer.NodeManager.getNodeById(id));
       });
     };
     $scope.loadNodes = function (filter) {

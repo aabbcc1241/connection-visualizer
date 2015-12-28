@@ -8,7 +8,10 @@
     </div>
     <h1 class="title"></h1>
     <div class="buttons">
-      <button class="button" ng-click="createNewNode()">New Node</button>
+      <button class="button" ng-if="!isEditing" ng-click="toggleMode()">Edit</button>
+      <button class="button" ng-if="isEditing" ng-click="discardChange()">Discard</button>
+      <button class="button" ng-if="isEditing" ng-click="saveNodes()">Save</button>
+      <button class="button" ng-if="isEditing" ng-click="createNewNode()">New Node</button>
     </div>
   </ion-header-bar>
   <ion-content>

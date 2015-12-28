@@ -14,10 +14,20 @@ module connection_visualizer {
      * */
     export function createNode(name:string, newForwardConnections:number[] = []):number {
       lastId++;
+      /* fix id if the last one is not integer */
+      if (parseInt(lastId)!=lastId)
+        lastId = newUniqueId();
       ids.push(lastId);
       names[lastId] = name;
       forwardConnections[lastId] = newForwardConnections;
       return lastId;
+    }
+
+    function newUniqueId():number {
+      var id = 0;
+      while (ids.indexOf(id) != -1)
+        id++;
+      return id;
     }
 
     export function getNodeById(id:number) {
@@ -34,7 +44,7 @@ module connection_visualizer {
       };
     }
 
-    function save() {
+    export function save() {
       utils.localSave('ids', ids);
       utils.localSave('names', names);
       utils.localSave('forwardConnections', forwardConnections);
@@ -46,8 +56,12 @@ module connection_visualizer {
       forwardConnections = utils.localLoad('forwardConnections', []);
       if (ids.length == 0)
         lastId = -1;
-      else
+      else {
         lastId = Math.max(...ids);
+        /* in case the id is not number (string) */
+        if (isNaN(lastId) || isFinite(lastId))
+          lastId = ids.reduce((max, id)=> max > id ? max : id, -1);
+      }
     }
 
     export function checkLoad() {
@@ -117,7 +131,7 @@ module utils {
     if (value === null)
       return defaultValue;
     else
-      return value;
+      return JSON.parse(value);
   }
 
   export function defined_structure(obj, attrs:any[]):boolean {
