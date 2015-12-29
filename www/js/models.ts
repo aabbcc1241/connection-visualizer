@@ -31,6 +31,7 @@ module connection_visualizer {
     }
 
     export function getNodeById(id:number) {
+      //checkLoad();
       return {
         id: function () {
           return id;
@@ -38,7 +39,7 @@ module connection_visualizer {
         name: function () {
           return names[id];
         },
-        forwardConnection: function () {
+        forwardConnections: function () {
           return forwardConnections[id];
         }
       };
