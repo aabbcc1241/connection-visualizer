@@ -1,50 +1,15 @@
-angular.module('starter.controllers', [])
+angular.module('starter.controllers')
 
-  .controller('AppCtrl', function ($scope, $ionicModal, $timeout) {
-
-    // With the new view caching in Ionic, Controllers are only called
-    // when they are recreated or on app start, instead of every page change.
-    // To listen for when this page is active (for example, to refresh data),
-    // listen for the $ionicView.enter event:
-    //$scope.$on('$ionicView.enter', function(e) {
-    //});
-
-    // Form data for the login modal
-    $scope.loginData = {};
-
-    // Create the login modal that we will use later
-    $ionicModal.fromTemplateUrl('templates/login.html', {
-      scope: $scope
-    }).then(function (modal) {
-      $scope.modal = modal;
-    });
-
-    // Triggered in the login modal to close it
-    $scope.closeLogin = function () {
-      $scope.modal.hide();
-    };
-
-    // Open the login modal
-    $scope.login = function () {
-      $scope.modal.show();
-    };
-
-    // Perform the login action when the user submits the login form
-    $scope.doLogin = function () {
-      console.log('Doing login', $scope.loginData);
-
-      // Simulate a login delay. Remove this and replace with your login
-      // code if using a login system
-      $timeout(function () {
-        $scope.closeLogin();
-      }, 1000);
-    };
-
-  })
-
-  .controller('NodesCtrl', function ($scope, $ionicPopup) {
+  .controller('NodesCtrl', function ($scope, $ionicPopup, configService, singletonService) {
+    var currentStart = 0;
     $scope.init = function () {
-      $scope.data = {};
+      console.log('NodesCtrl init');
+      $scope.data = {
+        nodes: []
+      };
+      connection_visualizer.NodeManager.checkLoad();
+      if (connection_visualizer.NodeManager.numberOfNodes() == 0)
+        connection_visualizer.NodeManager.createRandomNodes(configService.infiniteScrollInterval * 3);
       //$scope.toggleMode();
     };
     $scope.clearFilter = function () {
@@ -103,17 +68,55 @@ angular.module('starter.controllers', [])
           $scope.data.nodes.push(connection_visualizer.NodeManager.getNodeById(id));
       });
     };
+    /**@deprecated replaced by infinite ? */
     $scope.loadNodes = function (filter) {
       connection_visualizer.NodeManager.checkLoad();
       if (connection_visualizer.NodeManager.numberOfNodes() == 0) {
         /* create default nodes */
         connection_visualizer.NodeManager.createNode("Beeno");
         connection_visualizer.NodeManager.createNode("Katie");
+        var chance = singletonService.chance;
+        for (var i = 0; i < configService.infiniteScrollInterval; i++) {
+          connection_visualizer.NodeManager.createNode(chance.name());
+        }
       }
       var nodes = connection_visualizer.NodeManager.toArray();
       if (filter != null)
         nodes = nodes.filter(filter);
       $scope.data.nodes = nodes;
+      //$scope.$broadcast('scroll.infiniteScrollComplete');
+    };
+    $scope.hasMoreNodes = function () {
+      connection_visualizer.NodeManager.checkLoad();
+      var hasMore = currentStart < connection_visualizer.NodeManager.numberOfNodes();
+      /* debug start */
+      if (!hasMore && false) {
+        /* create default nodes */
+        connection_visualizer.NodeManager.createNode("Beeno");
+        connection_visualizer.NodeManager.createNode("Katie");
+        var chance = new Chance();
+        for (var i = 0; i < configService.infiniteScrollInterval; i++) {
+          connection_visualizer.NodeManager.createNode(chance.name());
+        }
+      }
+      /* debug end */
+      //if(hasMore)
+      //$scope.loadMoreNodes();
+      return hasMore;
+    };
+    $scope.loadMoreNodes = function () {
+      console.log('loading more nodes');
+      connection_visualizer.NodeManager.checkLoad();
+      var step = Math.max(Math.min(connection_visualizer.NodeManager.numberOfNodes() - currentStart, configService.infiniteScrollInterval), 0);
+      var newIds = connection_visualizer.NodeManager.getIds(currentStart, step);
+      currentStart += step;
+      newIds.forEach(function (id) {
+        $scope.data.nodes.push({
+          id: id,
+          name: connection_visualizer.NodeManager.getName(id)
+        });
+      });
+      $scope.$broadcast('scroll.infiniteScrollComplete');
     };
     $scope.deleteNode = function (node) {
       $scope.data.nodes.splice($scope.data.nodes.indexOf(node), 1);
@@ -121,39 +124,6 @@ angular.module('starter.controllers', [])
     $scope.reorderNode = function (node, $fromIndex, $toIndex) {
       $scope.data.nodes.splice($fromIndex, 1);
       $scope.data.nodes.splice($toIndex, 0, node);
-    };
-    $scope.init();
-  })
-
-  .controller('NodeCtrl', function ($scope, $stateParams) {
-    $scope.init = function () {
-      console.log('nodeCtrl init');
-      console.log('nodeId', $stateParams.nodeId);
-      $scope.data = {};
-      connection_visualizer.NodeManager.checkLoad();
-      $scope.data.node = connection_visualizer.NodeManager.getNodeById($stateParams.nodeId);
-      console.log('node', $scope.data.node);
-    };
-    $scope.loadNodes = function (filter) {
-      var nodeIds = $scope.data.node.forwardConnections();
-      if (nodeIds.length == 0 && false) {
-        /* create default connections */
-        connection_visualizer.NodeManager.checkLoad();
-        connection_visualizer.NodeManager.toArray().forEach(function (node) {
-          nodeIds.push(node.id())
-        });
-      }
-      var nodes = nodeIds.map(function (id) {
-        return connection_visualizer.NodeManager.getNodeById(id)
-      });
-      if (filter != null)
-        nodes = nodes.filter(filter);
-      $scope.data.nodes = nodes;
-    };
-    $scope.toggleMode = function () {
-      $scope.isEditing = !$scope.isEditing;
-      $scope.shouldShowDelete = $scope.isEditing;
-      $scope.shouldShowReorder = $scope.isEditing;
     };
     $scope.init();
   });

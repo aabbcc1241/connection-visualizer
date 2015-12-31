@@ -1,3 +1,5 @@
+declare var Chance:any;
+
 module connection_visualizer {
   export module NodeManager {
     var ids:number[];
@@ -9,13 +11,20 @@ module connection_visualizer {
       return ids.length;
     }
 
+    export function createRandomNodes(count:number=1) {
+      /* create default nodes */
+      for (var i = 0; i < count; i++) {
+        connection_visualizer.NodeManager.createNode(utils.chance.name());
+      }
+    }
+
     /**
      * @return id of new Node
      * */
     export function createNode(name:string, newForwardConnections:number[] = []):number {
       lastId++;
       /* fix id if the last one is not integer */
-      if (parseInt(lastId)!=lastId)
+      if (parseInt(lastId) != lastId)
         lastId = newUniqueId();
       ids.push(lastId);
       names[lastId] = name;
@@ -30,6 +39,7 @@ module connection_visualizer {
       return id;
     }
 
+    /** @deprecated poor performance when there are lot of nodes */
     export function getNodeById(id:number) {
       //checkLoad();
       return {
@@ -52,6 +62,7 @@ module connection_visualizer {
     }
 
     function load() {
+      console.log('loading all nodes');
       ids = utils.localLoad('ids', []);
       names = utils.localLoad('names', []);
       forwardConnections = utils.localLoad('forwardConnections', []);
@@ -70,6 +81,7 @@ module connection_visualizer {
         load();
     }
 
+    /** @deprecated poor performance when there are lot of nodes */
     export function forEach(consumer) {
       var nextIndex = 0;
       ids.forEach(function (id) {
@@ -87,6 +99,7 @@ module connection_visualizer {
       });
     }
 
+    /** @deprecated poor performance when there are lot of nodes */
     export function map(producer) {
       var list = [];
       forEach(function (node) {
@@ -95,6 +108,7 @@ module connection_visualizer {
       return list;
     }
 
+    /** @deprecated poor performance when there are lot of nodes */
     export function toArray() {
       var list = [];
       forEach(function (node) {
@@ -103,15 +117,27 @@ module connection_visualizer {
       return list;
     }
 
+    /** @deprecated poor performance when there are lot of nodes */
     export function toSimpleArray() {
       return map(function (node) {
         return {id: node.node(), name: node.name()}
       })
     }
+
+    export function getIds(offset:number, count:number = 1) {
+      var end = Math.min(offset + count, numberOfNodes());
+      return ids.slice(offset, end);
+    }
+
+    export function getName(id:number) {
+      return names[id];
+    }
+
   }
 }
 
 module utils {
+  export const chance=new Chance();
   export function checkLocalStorageSupport() {
     if (typeof (Storage) == "undefined") {
       //var message = "Local Storage is not Supported";
@@ -144,5 +170,8 @@ module utils {
       return "";
     else
       return input.trim();
+  }
+
+  export function randomName(n:number = 1) {
   }
 }

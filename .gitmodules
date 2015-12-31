@@ -1,0 +1,3 @@
+[submodule "www/lib/chancejs"]
+	path = www/lib/chancejs
+	url = https://github.com/victorquinn/chancejs.git
